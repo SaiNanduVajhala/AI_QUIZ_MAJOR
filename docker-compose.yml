@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  # Backend API Server
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: quiz-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./server/.env
+    networks:
+      - quiz-network
+
+  # Frontend (Vite React + Nginx)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:5000/api
+    container_name: quiz-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - quiz-network
+
+networks:
+  quiz-network:
+    driver: bridge
